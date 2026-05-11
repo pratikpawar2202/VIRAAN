@@ -1,0 +1,1945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Viraan</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --deep-ocean: #020b18;
+    --midnight: #040f1e;
+    --navy: #071428;
+    --horizon: #0a1f3d;
+    --star-silver: #c8d8e8;
+    --gold: #c9a84c;
+    --gold-light: #e2c47a;
+    --gold-dim: #8a6f32;
+    --foam: #e8f0f8;
+    --mist: rgba(200, 216, 232, 0.15);
+    --wave: rgba(10, 31, 61, 0.8);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--deep-ocean);
+    color: var(--star-silver);
+    font-family: 'Crimson Pro', Georgia, serif;
+    overflow: hidden;
+  }
+
+  /* ── SCREENS ── */
+  .screen {
+    position: fixed; inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.5s ease;
+    overflow: hidden;
+  }
+  .screen.active { 
+    display: flex;
+    opacity: 1; 
+    pointer-events: all; 
+  }
+
+  /* ── OCEAN BACKGROUND ── */
+  .ocean-bg {
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse at 50% 0%, #0d2a4a 0%, transparent 60%),
+      radial-gradient(ellipse at 20% 100%, #030d1a 0%, transparent 50%),
+      linear-gradient(180deg, #020b18 0%, #040f1e 40%, #020810 100%);
+  }
+
+  .stars {
+    position: fixed; inset: 0; z-index: 1;
+    background-image:
+      radial-gradient(1px 1px at 10% 15%, rgba(200,216,232,0.8) 0%, transparent 100%),
+      radial-gradient(1px 1px at 25% 8%, rgba(200,216,232,0.6) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 40% 20%, rgba(200,216,232,0.9) 0%, transparent 100%),
+      radial-gradient(1px 1px at 55% 5%, rgba(200,216,232,0.7) 0%, transparent 100%),
+      radial-gradient(1px 1px at 70% 12%, rgba(200,216,232,0.5) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 85% 18%, rgba(200,216,232,0.8) 0%, transparent 100%),
+      radial-gradient(1px 1px at 15% 30%, rgba(200,216,232,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 35%, rgba(200,216,232,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 35% 40%, rgba(200,216,232,0.3) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 60% 25%, rgba(201,168,76,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 78% 42%, rgba(200,216,232,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 5% 50%, rgba(200,216,232,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 92% 55%, rgba(200,216,232,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 48% 60%, rgba(200,216,232,0.2) 0%, transparent 100%);
+    animation: twinkle 6s ease-in-out infinite alternate;
+  }
+
+  @keyframes twinkle {
+    0% { opacity: 0.7; }
+    100% { opacity: 1; }
+  }
+
+  .water-surface {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: 180px; z-index: 2;
+    background: linear-gradient(180deg, transparent 0%, rgba(4,15,30,0.6) 40%, rgba(2,11,24,0.9) 100%);
+    overflow: hidden;
+  }
+
+  .wave-line {
+    position: absolute; width: 200%; height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(201,168,76,0.15), rgba(200,216,232,0.1), rgba(201,168,76,0.15), transparent);
+    animation: wavemove 8s linear infinite;
+  }
+  .wave-line:nth-child(1) { top: 20px; animation-duration: 9s; }
+  .wave-line:nth-child(2) { top: 50px; animation-duration: 12s; animation-delay: -3s; opacity: 0.6; }
+  .wave-line:nth-child(3) { top: 80px; animation-duration: 7s; animation-delay: -6s; opacity: 0.4; }
+
+  @keyframes wavemove {
+    0% { transform: translateX(-50%); }
+    100% { transform: translateX(0%); }
+  }
+
+  /* ── LANDING SCREEN ── */
+  #landing { z-index: 10; }
+
+  .vessel-glow {
+    position: absolute;
+    width: 300px; height: 300px;
+    background: radial-gradient(ellipse, rgba(201,168,76,0.08) 0%, transparent 70%);
+    bottom: 100px; left: 50%; transform: translateX(-50%);
+    animation: pulse-glow 4s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(1); }
+    50% { opacity: 1; transform: translateX(-50%) scale(1.1); }
+  }
+
+  .landing-content {
+    position: relative; z-index: 5;
+    text-align: center; padding: 2rem;
+    max-width: 600px;
+  }
+
+  .viraan-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(3rem, 8vw, 5.5rem);
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.3em;
+    text-shadow: 0 0 40px rgba(201,168,76,0.4), 0 0 80px rgba(201,168,76,0.15);
+    margin-bottom: 0.5rem;
+    opacity: 1;
+  }
+
+  @keyframes title-appear {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  .viraan-subtitle {
+    font-family: 'Crimson Pro', serif;
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    color: var(--star-silver);
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    margin-bottom: 3rem;
+    opacity: 0.6;
+  }
+
+  .divider {
+    width: 120px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 1.5rem auto;
+  }
+
+  .landing-quote {
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    font-style: italic;
+    color: var(--star-silver);
+    opacity: 0.7;
+    line-height: 1.8;
+    margin-bottom: 3rem;
+  }
+
+  .begin-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid var(--gold-dim);
+    background: transparent;
+    padding: 1rem 3rem;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+    opacity: 1;
+  }
+
+  .begin-btn::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: rgba(201,168,76,0.08);
+    transform: translateX(-100%);
+    transition: transform 0.4s ease;
+  }
+
+  .begin-btn:hover::before { transform: translateX(0); }
+  .begin-btn:hover {
+    border-color: var(--gold);
+    box-shadow: 0 0 20px rgba(201,168,76,0.2);
+  }
+
+  /* ── STORY SCREEN ── */
+  #story { z-index: 10; align-items: stretch; justify-content: flex-start; }
+
+  .story-container {
+    position: relative; z-index: 5;
+    max-width: 720px; width: 100%;
+    margin: 0 auto;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 4rem 2rem 6rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold-dim) transparent;
+  }
+
+  .story-container::-webkit-scrollbar { width: 3px; }
+  .story-container::-webkit-scrollbar-track { background: transparent; }
+  .story-container::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
+
+  .story-header {
+    text-align: center; margin-bottom: 3rem;
+  }
+
+  .story-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    margin-bottom: 0.5rem;
+  }
+
+  .story-draft {
+    font-size: 0.8rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--star-silver);
+    opacity: 0.4;
+  }
+
+  .scene-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin: 3rem 0 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+  }
+
+  .story-text {
+    font-size: clamp(1rem, 2.5vw, 1.15rem);
+    line-height: 1.95;
+    color: var(--star-silver);
+    opacity: 0.88;
+  }
+
+  .story-text p { margin-bottom: 1.4rem; }
+
+  .story-text em {
+    color: var(--gold-light);
+    font-style: italic;
+  }
+
+  .story-text strong {
+    color: var(--foam);
+    font-weight: 400;
+    letter-spacing: 0.05em;
+  }
+
+  .story-footer {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    padding: 1.5rem;
+    background: linear-gradient(0deg, var(--deep-ocean) 60%, transparent);
+    display: flex; justify-content: center;
+    z-index: 20;
+  }
+
+  /* ── BOAT CONVERSATION SCREEN ── */
+  #conversation { z-index: 10; }
+
+  .conversation-container {
+    position: relative; z-index: 5;
+    width: 100%; max-width: 700px;
+    padding: 2rem;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 2rem;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .boat-avatar {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    border: 1px solid var(--gold-dim);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem;
+    background: radial-gradient(ellipse, rgba(201,168,76,0.1), transparent);
+    box-shadow: 0 0 30px rgba(201,168,76,0.15);
+    animation: boat-pulse 3s ease-in-out infinite;
+    flex-shrink: 0;
+    margin-top: 2rem;
+  }
+
+  @keyframes boat-pulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(201,168,76,0.15); }
+    50% { box-shadow: 0 0 40px rgba(201,168,76,0.3); }
+  }
+
+  .progress-bar {
+    width: 100%;
+    display: flex; align-items: center; gap: 1rem;
+  }
+
+  .progress-track {
+    flex: 1; height: 2px;
+    background: rgba(200,216,232,0.1);
+    border-radius: 1px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+    border-radius: 1px;
+    transition: width 0.6s ease;
+  }
+
+  .progress-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--gold-dim);
+    white-space: nowrap;
+  }
+
+  .character-badge {
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.7;
+    text-align: center;
+  }
+
+  .boat-speech {
+    background: rgba(4,15,30,0.6);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 2px;
+    padding: 1.8rem 2rem;
+    width: 100%;
+    position: relative;
+  }
+
+  .boat-speech::before {
+    content: '';
+    position: absolute; top: -1px; left: 2rem; right: 2rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  }
+
+  .speech-text {
+    font-size: clamp(1rem, 2.5vw, 1.15rem);
+    line-height: 1.9;
+    color: var(--star-silver);
+    font-style: italic;
+    text-align: center;
+    width: 100%;
+  }
+
+  .speech-line {
+    display: block;
+    margin-bottom: 0.7rem;
+    color: var(--star-silver);
+    font-style: italic;
+    font-size: clamp(1rem, 2.5vw, 1.15rem);
+    line-height: 1.9;
+  }
+
+  .speech-text .highlight {
+    color: var(--gold-light);
+    font-style: normal;
+  }
+
+  /* Name tiles */
+  .tiles-section {
+    width: 100%;
+  }
+
+  .tiles-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--star-silver);
+    opacity: 0.4;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .name-tiles {
+    display: flex !important; flex-wrap: wrap;
+    gap: 0.6rem; justify-content: center;
+    width: 100%;
+  }
+
+  .name-tile {
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.95rem;
+    color: var(--star-silver);
+    border: 1px solid rgba(200,216,232,0.15);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(4,15,30,0.4);
+    border-radius: 1px;
+  }
+
+  .name-tile:hover {
+    border-color: var(--gold-dim);
+    color: var(--gold-light);
+    background: rgba(201,168,76,0.05);
+  }
+
+  .name-tile.selected {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(201,168,76,0.1);
+    box-shadow: 0 0 10px rgba(201,168,76,0.15);
+  }
+
+  /* Response area */
+  .response-section {
+    width: 100%;
+  }
+
+  .response-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--star-silver);
+    opacity: 0.4;
+    margin-bottom: 0.8rem;
+  }
+
+  .mic-btn {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    border: 1px solid var(--gold-dim);
+    background: rgba(201,168,76,0.05);
+    color: var(--gold);
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .mic-btn:hover, .mic-btn.recording {
+    background: rgba(201,168,76,0.15);
+    box-shadow: 0 0 20px rgba(201,168,76,0.2);
+    border-color: var(--gold);
+  }
+
+  .mic-btn.recording {
+    animation: mic-pulse 1s ease-in-out infinite;
+  }
+
+  @keyframes mic-pulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(201,168,76,0.2); }
+    50% { box-shadow: 0 0 40px rgba(201,168,76,0.5); }
+  }
+
+  .transcript-box {
+    width: 100%;
+    min-height: 80px;
+    background: rgba(4,15,30,0.5);
+    border: 1px solid rgba(200,216,232,0.1);
+    border-radius: 2px;
+    padding: 1rem;
+    color: var(--star-silver);
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    line-height: 1.7;
+    resize: none;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+
+  .transcript-box:focus {
+    border-color: rgba(201,168,76,0.3);
+  }
+
+  .transcript-hint {
+    font-size: 0.8rem;
+    color: var(--star-silver);
+    opacity: 0.4;
+    text-align: center;
+    margin-top: 0.5rem;
+    font-style: italic;
+  }
+
+  /* Competency section */
+  .competency-section {
+    width: 100%;
+    background: rgba(4,15,30,0.5);
+    border: 1px solid rgba(201,168,76,0.1);
+    padding: 1.5rem;
+    border-radius: 2px;
+  }
+
+  .competency-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.7;
+    margin-bottom: 1rem;
+  }
+
+  .competency-item {
+    display: flex; align-items: center; gap: 0.8rem;
+    margin-bottom: 0.8rem;
+    cursor: pointer;
+  }
+
+  .competency-check {
+    width: 18px; height: 18px;
+    border: 1px solid var(--gold-dim);
+    border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem;
+    color: var(--gold);
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .competency-item.checked .competency-check {
+    background: rgba(201,168,76,0.2);
+    border-color: var(--gold);
+  }
+
+  .competency-label {
+    font-size: 0.95rem;
+    color: var(--star-silver);
+  }
+
+  .competency-type {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0.4;
+    margin-left: auto;
+  }
+
+  .has-tag { color: #4a9a6a; }
+  .needs-tag { color: #c97070; }
+
+  /* Action buttons */
+  .action-row {
+    display: flex; gap: 1rem; width: 100%;
+    justify-content: center; padding-bottom: 2rem;
+  }
+
+  .btn-primary {
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid var(--gold-dim);
+    background: rgba(201,168,76,0.05);
+    padding: 0.8rem 2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    background: rgba(201,168,76,0.12);
+    border-color: var(--gold);
+    box-shadow: 0 0 15px rgba(201,168,76,0.15);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.3; cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--star-silver);
+    border: 1px solid rgba(200,216,232,0.15);
+    background: transparent;
+    padding: 0.8rem 2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 0.6;
+  }
+
+  .btn-secondary:hover { opacity: 1; }
+
+  /* ── RESULTS SCREEN ── */
+  #results { z-index: 10; align-items: stretch; justify-content: flex-start; }
+
+  .results-container {
+    position: relative; z-index: 5;
+    max-width: 900px; width: 100%;
+    margin: 0 auto;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 3rem 2rem 6rem;
+  }
+
+  .results-header {
+    text-align: center; margin-bottom: 3rem;
+  }
+
+  .results-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.3rem, 3vw, 1.8rem);
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    margin-bottom: 0.5rem;
+  }
+
+  .results-subtitle {
+    font-size: 1rem;
+    color: var(--star-silver);
+    opacity: 0.6;
+    font-style: italic;
+  }
+
+  .character-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .character-card {
+    background: rgba(4,15,30,0.7);
+    border: 1px solid rgba(201,168,76,0.15);
+    padding: 1.5rem;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .character-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  }
+
+  .character-card:hover {
+    border-color: rgba(201,168,76,0.3);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+
+  .card-character {
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.8;
+    margin-bottom: 0.3rem;
+  }
+
+  .card-leader {
+    font-size: 1.3rem;
+    color: var(--foam);
+    margin-bottom: 1rem;
+    font-weight: 300;
+  }
+
+  .card-competencies {
+    display: flex; flex-direction: column; gap: 0.4rem;
+  }
+
+  .card-comp {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .card-comp-dot {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  .dot-has { background: #4a9a6a; }
+  .dot-needs { background: #c97070; }
+
+  .card-comp-text { color: var(--star-silver); opacity: 0.8; }
+  .card-comp-tag { font-size: 0.65rem; opacity: 0.5; margin-left: auto; }
+
+  .closing-message {
+    background: rgba(4,15,30,0.6);
+    border: 1px solid rgba(201,168,76,0.1);
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .closing-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.6;
+    margin-bottom: 1rem;
+  }
+
+  .closing-text {
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--star-silver);
+    opacity: 0.8;
+    line-height: 1.8;
+  }
+
+  /* ── CLOSING SCREEN ── */
+  #closing-screen { z-index: 10; }
+
+  .closing-content {
+    position: relative; z-index: 5;
+    text-align: center; padding: 2rem;
+    max-width: 560px;
+  }
+
+  .closing-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1rem, 3vw, 1.4rem);
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    margin-bottom: 2rem;
+  }
+
+  .closing-question {
+    font-size: clamp(1rem, 2.5vw, 1.15rem);
+    font-style: italic;
+    color: var(--star-silver);
+    opacity: 0.85;
+    line-height: 1.9;
+    margin-bottom: 2rem;
+  }
+
+  .closing-textarea {
+    width: 100%;
+    min-height: 120px;
+    background: rgba(4,15,30,0.5);
+    border: 1px solid rgba(200,216,232,0.15);
+    padding: 1rem;
+    color: var(--star-silver);
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    line-height: 1.7;
+    resize: none;
+    outline: none;
+    margin-bottom: 1.5rem;
+    transition: border-color 0.3s ease;
+  }
+
+  .closing-textarea:focus { border-color: rgba(201,168,76,0.3); }
+
+  .submit-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--deep-ocean);
+    background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+    border: none;
+    padding: 1rem 3rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .submit-btn:hover {
+    box-shadow: 0 0 30px rgba(201,168,76,0.3);
+    transform: translateY(-1px);
+  }
+
+  /* ── THANK YOU SCREEN ── */
+  #thankyou { z-index: 10; }
+
+  .thankyou-content {
+    position: relative; z-index: 5;
+    text-align: center; padding: 2rem;
+    max-width: 500px;
+  }
+
+  .thankyou-icon {
+    font-size: 3rem; margin-bottom: 1.5rem;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .thankyou-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    margin-bottom: 1rem;
+  }
+
+  .thankyou-text {
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--star-silver);
+    opacity: 0.75;
+    line-height: 1.9;
+  }
+
+  /* ── UTILITIES ── */
+  .hidden { display: none !important; }
+
+  .fade-in {
+    animation: fade-in 0.6s ease forwards;
+  }
+
+  @keyframes fade-in {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Scrollable conversation */
+  .conversation-container {
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold-dim) transparent;
+  }
+  .conversation-container::-webkit-scrollbar { width: 3px; }
+  .conversation-container::-webkit-scrollbar-thumb { background: var(--gold-dim); }
+
+  @media (max-width: 600px) {
+    .character-cards { grid-template-columns: 1fr; }
+    .name-tile { font-size: 0.85rem; padding: 0.4rem 0.8rem; }
+  }
+
+  /* ── NAME ENTRY SCREEN ── */
+  #name-entry { z-index: 10; }
+
+  .name-entry-content {
+    position: relative; z-index: 5;
+    text-align: center; padding: 2rem;
+    max-width: 500px; width: 100%;
+  }
+
+  .name-entry-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.2rem, 3vw, 1.6rem);
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    margin-bottom: 0.5rem;
+  }
+
+  .name-entry-subtitle {
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--star-silver);
+    opacity: 0.6;
+    margin-bottom: 2.5rem;
+    line-height: 1.7;
+  }
+
+  .name-input-wrapper {
+    position: relative;
+    margin-bottom: 2rem;
+  }
+
+  .name-input {
+    width: 100%;
+    background: rgba(4,15,30,0.6);
+    border: 1px solid rgba(201,168,76,0.3);
+    padding: 1rem 1.5rem;
+    color: var(--foam);
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.2rem;
+    text-align: center;
+    outline: none;
+    letter-spacing: 0.05em;
+    transition: border-color 0.3s ease;
+  }
+
+  .name-input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 20px rgba(201,168,76,0.1);
+  }
+
+  .name-input::placeholder {
+    color: rgba(200,216,232,0.3);
+    font-style: italic;
+  }
+
+  .name-tiles-select {
+    display: flex; flex-wrap: wrap;
+    gap: 0.6rem; justify-content: center;
+    margin-bottom: 2rem;
+  }
+
+  .name-select-tile {
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.95rem;
+    color: var(--star-silver);
+    border: 1px solid rgba(200,216,232,0.15);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(4,15,30,0.4);
+    border-radius: 1px;
+  }
+
+  .name-select-tile:hover {
+    border-color: var(--gold-dim);
+    color: var(--gold-light);
+    background: rgba(201,168,76,0.05);
+  }
+
+  .name-select-tile.selected {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(201,168,76,0.1);
+    box-shadow: 0 0 10px rgba(201,168,76,0.15);
+  }
+
+</style>
+</head>
+<body>
+
+<!-- Ocean Background -->
+<div class="ocean-bg"></div>
+<div class="stars"></div>
+<div class="water-surface">
+  <div class="wave-line"></div>
+  <div class="wave-line"></div>
+  <div class="wave-line"></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 1 — LANDING
+══════════════════════════════════════════ -->
+<div id="landing" class="screen active">
+  <div class="vessel-glow"></div>
+  <div class="landing-content">
+    <div class="viraan-title">VIRAAN</div>
+    <div class="viraan-subtitle">A Voyage of Observation</div>
+    <div class="divider"></div>
+    <div class="landing-quote">
+      "I have carried many crews across waters that had no name.<br>
+      I do not remember every face.<br>
+      But I remember every choice."
+    </div>
+    <button class="begin-btn" onclick="goToNameEntry()">Begin the Voyage</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN 1B — NAME ENTRY
+══════════════════════════════════════════ -->
+<div id="name-entry" class="screen">
+  <div class="vessel-glow"></div>
+  <div class="name-entry-content">
+    <div class="boat-avatar" style="margin: 0 auto 1.5rem; width:60px; height:60px; font-size:1.5rem;">⚓</div>
+    <div class="name-entry-title">Before We Sail</div>
+    <div class="divider"></div>
+    <div class="name-entry-subtitle">
+      "I remember every crew member who has sailed with me.<br>
+      Tell me your name before we begin."
+    </div>
+    <div class="name-tiles-select" id="nameSelectTiles"></div>
+    <button class="begin-btn" id="proceedBtn" onclick="proceedToStory()" disabled style="opacity:0.4;">
+      Begin the Voyage →
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 2 — STORY
+══════════════════════════════════════════ -->
+<div id="story" class="screen">
+  <div class="story-container" id="storyScroll">
+    <div class="story-header">
+      <div class="story-title">THE VOYAGE OF THE VIRAAN</div>
+      <div class="divider"></div>
+    </div>
+
+    <div class="story-text">
+
+      <div class="scene-title">The Context</div>
+      <p>Ten specialists. One vessel. An uncharted destination that existed on only one map — and that map was incomplete. The Viraan had been at sea for forty three days, moving toward a continent that promised everything, guided by ten people who had chosen this voyage knowing that the ocean does not forgive the unprepared. They had forty three days of calm to learn each other. On the forty fourth day the ocean decided it was done being patient.</p>
+
+      <div class="scene-title">Scene I — The Storm</div>
+      <p>It came without warning.</p>
+      <p>One moment the sky was pale and open. The next it was a wall of dark moving faster than anyone had seen before. The <strong>Sentinel</strong> — the crew member who had stood watch for seventeen of the last forty three nights, the one whose stillness in chaos gave others permission to stay calm — had barely finished his alert before the first wave crashed across the deck.</p>
+      <p>The <strong>Navigator</strong> moved instantly to the wheel and took it from the Helmsman without a word. He needed his hands on something he could control. The <strong>Helmsman</strong> — the one who had steered the Viraan for every one of those forty three days with quiet precision and absolute reliability — stepped back without protest. His face said nothing. His eyes carried something that had been building for weeks.</p>
+      <p>The <strong>Cartographer</strong> disappeared below deck. Every chart, every log, every record of where the Viraan had been — she moved to protect it all with extraordinary speed and focus. For twenty minutes she was completely unreachable. Three crew members needed information during those twenty minutes and made decisions without it. Two of those decisions were fine. One would cost the expedition the following morning.</p>
+      <p>The <strong>Quartermaster</strong> moved through the chaos like a man who had rehearsed it. Because he had. Every morning for forty three days he had counted — supplies, tools, water reserves, contingencies. He knew exactly what could be sacrificed, what must be protected, what could be traded for stability. In the storm every one of those counts justified itself.</p>
+      <p>The <strong>Surgeon</strong> was everywhere at once. Crew members who were struggling found her beside them before they had fully registered their own struggle. She redistributed weight, steadied the frightened, kept the deck functioning. But in her movement she also took over three tasks that crew members were managing adequately — because she could not bear to watch someone struggle when she could simply solve it. The crew member who needed to learn that they could hold the rope in a storm never got to find that out.</p>
+      <p>The <strong>Tide Reader</strong> had predicted this storm. She had called it eighteen hours away and it had arrived in nine. Now she was reading the next shift — wind direction, current behavior, likely duration — and shouting it across the deck to anyone who could use it. Which was everyone. But she was shouting four things simultaneously and the crew could only absorb one. The information was extraordinary. The delivery was a flood when the crew needed a tap.</p>
+      <p>The <strong>Helmsman</strong> — standing on the deck without his wheel for the first time in forty three days — knew ten things that needed doing. But without clear direction he stood for forty seconds that felt like four minutes. He was not incapable. He was waiting for a signal that nobody was sending. The <strong>Challenger</strong> — the one who asked the questions nobody else would ask, who challenged the Navigator's calls without flinching — grabbed his arm and pointed him at the most urgent problem. He moved immediately and brilliantly. But those forty seconds had been expensive.</p>
+      <p>The <strong>Diplomat</strong> held the crew together in a way that was easy to miss because it looked like nothing. A word here. A steadying presence there. When two crew members snapped at each other in the chaos he was between them before the second sentence. He was deeply loyal to this expedition and it showed in every move he made. But when the Navigator made a decision the Diplomat privately believed was wrong — turning into the storm rather than across it — he said nothing. He executed it. And kept his doubt exactly where he had kept it for forty three days. In the small handwriting of a journal nobody else read.</p>
+      <p>The <strong>Wayfinder</strong> stopped two crew members from taking an action that was correct but procedurally out of sequence. The action would have taken thirty seconds. The conversation about why the sequence mattered took four minutes. It was eventually done correctly and on a different day in calmer water everyone would have nodded in agreement. On this day in this storm three people who witnessed it exchanged a look that said the same thing without words.</p>
+      <p>Then the <strong>Challenger</strong> did something nobody forgot.</p>
+      <p>At the height of the storm with water on the deck and wind making conversation nearly impossible she crossed to the Navigator — still gripping the wheel — and spoke directly into his ear.</p>
+      <p>What she said nobody heard.</p>
+      <p>The Navigator's jaw tightened. Ten seconds of silence. Then he made a course adjustment. Significant. Away from his original decision and toward something the crew could feel immediately was more stable.</p>
+      <p>He never acknowledged where the adjustment had come from.</p>
+      <p>The Challenger returned to her position. She didn't look for acknowledgment. She had learned not to.</p>
+      <p>By the time the storm passed the Viraan was intact. Damaged. Tired. But intact.</p>
+      <p>The Navigator released the wheel back to the Helmsman without comment and walked to the bow. Alone. The crew watched him stand there against the clearing sky and felt the complicated feeling they always felt in his presence — gratitude and distance arriving together, leaving together, never quite separable.</p>
+
+      <div class="scene-title">Scene II — The Aftermath</div>
+      <p>The morning after a storm is its own kind of storm.</p>
+      <p>The <strong>Quartermaster</strong> had a full damage report ready before anyone asked for it. Resources lost, resources remaining, revised timelines, three contingency options ranked by viability. He placed it on the main table and said nothing. One crew member looked at it and said it was too conservative. The Quartermaster looked back and said — <em>"Conservative is what keeps us alive long enough to be brave."</em></p>
+      <p>The <strong>Tide Reader</strong> was already reading the water again. She had moved on from the storm completely — it was history and history didn't interest her as much as what was coming. The Navigator was the third person she told about her new findings. He noticed he was third. He said nothing about it.</p>
+      <p>The <strong>Surgeon</strong> was tending to the crew — physical injuries first, then the subtler ones. On this morning she was navigating more carefully the line between helping and taking over. Something in the night had made her more thoughtful about the difference. She hadn't resolved it yet. But she was sitting with the question.</p>
+      <p>The <strong>Helmsman</strong> was at the wheel. Back where he belonged. He had something to say to the Navigator — something that had been building across forty three days and had crystallized in those forty seconds on the deck. He hadn't said it yet. But the decision to say it had been made somewhere in the night.</p>
+      <p>The <strong>Cartographer</strong> emerged with every record intact. Pristine. Then a junior crew member asked her a question outside her domain — about morale, about whether the crew had what it took to continue. She answered it. Carefully, honestly, with more warmth than she typically allowed herself. Nobody commented on it. But the junior crew member walked away standing slightly straighter.</p>
+      <p>The <strong>Sentinel</strong> called the Navigator aside. He told him about the hull. Three weeks of knowing. The storm. The repair he had made alone in the dark. The current status. He told it without excuse, without softening. <em>"It is stable. It will hold. You deserved to know sooner."</em> The Navigator nodded once. Not in absolution. In receipt.</p>
+      <p>The <strong>Diplomat</strong> wrote in his journal that morning in his normal handwriting — not the small careful script he reserved for things he would never say aloud. He wrote that loyalty without honesty is not loyalty at all. It is comfort dressed as commitment.</p>
+      <p>The <strong>Wayfinder</strong> rebuilt the expedition's protocols to account for storm conditions. Halfway through she stopped and added a section she hadn't planned — a protocol for when the protocol should be questioned. It surprised her that she wrote it. She left it in.</p>
+      <p>The <strong>Challenger</strong> sat with the Navigator at the bow. She didn't ask about the course adjustment. Instead she asked — <em>"When did you last let the council surprise you?"</em></p>
+      <p>He didn't answer immediately. The water moved.</p>
+      <p><em>"Tonight,"</em> he said finally. <em>"I'm calling the council tonight."</em></p>
+
+      <div class="scene-title">Scene III — The Decision</div>
+      <p>They gathered below deck as the sun dropped. All ten. Around the Cartographer's table. The Navigator laid two routes before them.</p>
+      <p>The first — the original route. Known currents. Predictable. But the storm had revealed three more weather systems of similar severity ahead. The Viraan had survived one. Three more was a different question.</p>
+      <p>The second — an uncharted route. The Tide Reader had identified a current that could cut the journey by thirty percent and bypass the weather systems entirely. But no map covered it. No expedition had returned from it. Only the Tide Reader's instinct and the Navigator's stars.</p>
+      <p>He placed both options before the council. Then he said something he had not said in forty three days — <em>"I want to hear from everyone."</em></p>
+      <p>The <strong>Quartermaster</strong> presented the numbers without recommendation. Just truth laid flat on the table.</p>
+      <p>The <strong>Tide Reader</strong> spoke slowly for once. She believed in the current she had found. But she said — <em>"I have been wrong before when I moved too fast. I want to be sure you know that before you decide."</em></p>
+      <p>The <strong>Surgeon</strong> gave her technical assessment, then said something beyond her role — <em>"The crew that arrives on the uncharted route, if it works, will not be the same crew that left. They will be more than they are now."</em> Nobody had asked her for that. She gave it anyway.</p>
+      <p>The <strong>Helmsman</strong> said he could navigate either route. Then he looked at the Navigator — <em>"I need the direction before the wheel turns. Not after. I can execute anything this vessel requires. But I need to be part of the decision before it is made."</em></p>
+      <p>The <strong>Cartographer</strong> said she could not chart what she had no record of. Then added six words — <em>"But perhaps that is not always necessary."</em></p>
+      <p>The <strong>Sentinel</strong> told the full council about the hull. Everything. Then said — <em>"You deserved to know sooner. All of you."</em> The room held a silence that felt more like respect than judgment.</p>
+      <p>The <strong>Wayfinder</strong> said there was no protocol for the uncharted route. She said she could build one in motion. She mentioned the new section she had added to the storm protocols. One or two people smiled without meaning to.</p>
+      <p>The <strong>Diplomat</strong> outlined both options carefully — then stopped. Started again. And said what he actually thought. <em>"The new current. I have believed so since before the storm. I should have said it sooner and I did not. I am saying it now."</em></p>
+      <p>The <strong>Challenger</strong> spoke last. She did not argue. She said — <em>"You already know which route. You knew before you called this council. What you called us here for was something different."</em></p>
+      <p>She paused.</p>
+      <p><em>"And I think you got it."</em></p>
+      <p>The Navigator looked around the table. Each face in turn. Then he picked up the blank map — the uncharted one.</p>
+      <p><em>"We move at dawn,"</em> he said. Then, quieter — <em>"Together."</em></p>
+      <p>The word had been used before. But it had never quite meant what it meant in this moment. Not instruction. Not assumption. Something closer to a question that had finally received its answer.</p>
+
+      <div class="divider" style="margin: 2rem auto;"></div>
+      <p style="text-align:center; font-style:italic; opacity:0.5; font-size:0.95rem;">The Viraan sailed on. Into water no chart had touched. Ten people who had just learned something about themselves and each other that forty three days of open water had been preparing them for without their knowing.</p>
+
+    </div>
+  </div>
+
+  <div class="story-footer">
+    <button class="begin-btn" onclick="goToConversation()">Speak with the Viraan →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 3 — BOAT CONVERSATION
+══════════════════════════════════════════ -->
+<div id="conversation" class="screen">
+  <div class="conversation-container" id="convScroll">
+
+    <div class="boat-avatar" onclick="stopSpeaking()" title="Click to stop speaking">⚓</div>
+    <div style="font-size:0.7rem;letter-spacing:0.15em;color:var(--gold-dim);opacity:0.6;margin-top:-1rem;cursor:pointer;" onclick="stopSpeaking()">tap to silence</div>
+
+    <div class="progress-bar">
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+      <div class="progress-label" id="progressLabel">0 / 10</div>
+    </div>
+
+    <div class="character-badge" id="characterBadge"></div>
+
+    <div class="boat-speech">
+      <div class="speech-text" id="speechText"></div>
+    </div>
+
+    <!-- Name Tiles -->
+    <div class="tiles-section" id="tilesSection">
+      <div class="tiles-label">Your Council — Speak a name and tap to confirm</div>
+      <div class="name-tiles" id="nameTiles"></div>
+    </div>
+
+    <!-- Response -->
+    <div class="response-section" id="responseSection" style="display:none">
+      <div class="response-label">Your observation</div>
+      <button class="mic-btn" id="micBtn" onclick="toggleMic()">🎙</button>
+      <textarea class="transcript-box" id="transcriptBox" placeholder="Speak your observation or type it here..."></textarea>
+      <div class="transcript-hint">You may edit the text before confirming</div>
+    </div>
+
+    <!-- Competencies -->
+    <div class="competency-section" id="competencySection" style="display:none">
+      <div class="competency-title">What the Viraan sees in this pairing</div>
+      <div id="competencyItems"></div>
+    </div>
+
+    <!-- Action Row -->
+    <div class="action-row" id="actionRow">
+      <button class="btn-primary" id="confirmBtn" onclick="handleConfirm()" disabled>Confirm &amp; Continue</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 4 — CLOSING QUESTION
+══════════════════════════════════════════ -->
+<div id="closing-screen" class="screen">
+  <div class="closing-content">
+    <div class="boat-avatar" style="margin:0 auto 2rem;">⚓</div>
+    <div class="closing-title">One Final Question</div>
+    <div class="closing-question" id="closingQuestion">
+      "You have looked at your crew with honest eyes.<br><br>
+      If you could send one message to your entire council — something they need to hear as they sail into the uncharted water ahead — what would it be?<br><br>
+      Speak it. I will make sure it reaches them."
+    </div>
+    <button class="mic-btn" id="closingMicBtn" onclick="toggleClosingMic()" style="margin-bottom:1rem;">🎙</button>
+    <textarea class="closing-textarea" id="closingTextarea" placeholder="Speak or type your message to the council..."></textarea>
+    <br>
+    <button class="submit-btn" onclick="submitAll()">Send this to the Viraan</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 5 — RESULTS
+══════════════════════════════════════════ -->
+<div id="results" class="screen">
+  <div class="results-container">
+    <div class="results-header">
+      <div class="results-title">YOUR COUNCIL'S CONSTELLATION</div>
+      <div class="divider"></div>
+      <div class="results-subtitle">The crew you see sailing beside you</div>
+    </div>
+
+    <div class="character-cards" id="characterCards"></div>
+
+    <div class="closing-message" id="closingMessageDisplay" style="display:none">
+      <div class="closing-label">Your Message to the Council</div>
+      <div class="closing-text" id="closingMessageText"></div>
+    </div>
+
+    <div class="action-row">
+      <button class="btn-primary" onclick="goToThankYou()">Complete the Voyage</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 6 — THANK YOU
+══════════════════════════════════════════ -->
+<div id="thankyou" class="screen">
+  <div class="thankyou-content">
+    <div class="thankyou-icon">⚓</div>
+    <div class="thankyou-title">The Viraan Remembers</div>
+    <div class="divider"></div>
+    <div class="thankyou-text">
+      "I have carried many crews.<br>
+      I have felt the weight of what you just gave me.<br><br>
+      Safe sailing."
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════
+
+let participantName = "";
+
+const LEADERS = [
+  "Aditya", "Anand", "Anuja", "Arun", "Dhanashree",
+  "John", "Ketakee", "Natasha", "Nilesh", "Rewati",
+  "Rohit", "Sagar", "Sarvesh", "Sruthi"
+];
+
+const CHARACTERS = [
+  {
+    id: "challenger",
+    name: "The Challenger",
+    opening: `"The Challenger.
+
+She spoke into the Navigator's ear at the height of the storm — when the wind was loudest and the moment was most costly.
+
+She did not wait for permission. She did not soften what needed to be said.
+
+And when the Navigator adjusted course — he never acknowledged where the idea came from. She had made her peace with that.
+
+Who in your council carries this willingness — to say the difficult thing, to the right person, at the right moment — without waiting to be asked?
+
+Speak their name. Find them on your council."`,
+    question: (name) => `"What is it about ${name} that brought the Challenger to mind?"`,
+    competencies: [
+      { label: "Upward Courage", type: "has" },
+      { label: "Courage that tips into confrontation", type: "needs" }
+    ]
+  },
+  {
+    id: "sentinel",
+    name: "The Sentinel",
+    opening: `"The Sentinel.
+
+Seventeen nights of watch when others slept. His stillness in the storm gave the crew permission to stay calm.
+
+But he carried a secret about the hull — alone, in silence — telling himself it was not yet critical. Until the storm made it critical.
+
+He told the truth eventually. Completely. Without excuse.
+
+Who in your council carries this — the steadiness that others draw courage from, and perhaps the tendency to carry more alone than they should?
+
+Speak their name. Find them on your council."`,
+    question: (name) => `"What is it about ${name} that brought the Sentinel to mind?"`,
+    competencies: [
+      { label: "Presence Under Pressure", type: "has" },
+      { label: "Carries too much alone", type: "needs" }
+    ]
+  },
+  {
+    id: "quartermaster",
+    name: "The Quartermaster",
+    opening: `"The Quartermaster.
+
+He counted every morning. Not because he was told to — because he understood that discipline in the calm is what saves lives in the storm.
+
+He saved this expedition twice. But sometimes his caution became a ceiling. Sometimes the expedition needed to be brave and he needed to be convinced.
+
+Who in your council carries this — the discipline of knowing exactly what is at stake, and perhaps the tendency to let that knowledge slow bold decisions?
+
+Speak their name. Find them on your council."`,
+    question: (name) => `"What is it about ${name} that brought the Quartermaster to mind?"`,
+    competencies: [
+      { label: "Commercial Acumen", type: "has" },
+      { label: "Caution becomes a ceiling", type: "needs" }
+    ]
+  },
+  {
+    id: "tidereader",
+    name: "The Tide Reader",
+    opening: `"The Tide Reader.
+
+She saw the storm before the sky knew it was coming. She moved fast — faster than most could follow.
+
+In the aftermath she said something rare — I have been wrong before when I moved too fast. That admission cost her something. She gave it anyway.
+
+Who in your council carries this — the instinct to read what is coming before it arrives, and perhaps the tendency to move so fast that others are still finding their footing?
+
+Speak their name. Find them on your council."`,
+    question: (name) => `"What is it about ${name} that brought the Tide Reader to mind?"`,
+    competencies: [
+      { label: "Adaptive Intelligence", type: "has" },
+      { label: "Moves too fast for others", type: "needs" }
+    ]
+  },
+  {
+    id: "surgeon",
+    name: "The Surgeon",
+    opening: `"The Surgeon.
+
+She saw where people were breaking before they broke. Her care was genuine and extraordinary.
+
+But she also took over tasks that crew members were managing — because she could not bear to watch someone struggle when she could simply solve it. The crew member who needed to learn they could hold the rope in a storm never got to find that out.
+
+Who in your council carries this — the gift of developing and protecting people, and perhaps the tendency to help so completely that others don't get the chance to grow?
+
+Speak their name. Find them on your council."`,
+    question: (name) => `"What is it about ${name} that brought the Surgeon to mind?"`,
+    competencies: [
+      { label: "People Multiplier", type: "has" },
+      { label: "Helps so much others don't grow", type: "needs" }
+    ]
+  },
+  {
+    id: "helmsman",
+    name: "The Helmsman",
+    opening: `"The Helmsman.
+
+Forty three days at the wheel. Steady. Reliable. Extraordinarily precise when the course was set.
+
+But when the Navigator changed course without warning — the Helmsman felt it in the water before he was told. He said nothing. He adjusted. He always adjusted.
+
+Until the council meeting — when he finally said what had been building for weeks. I need the direction before the wheel turns. Not after.
+
+Who in your council carries this — the reliability the expedition depends on daily, and perhaps the tendency to absorb more than they should before finally speaking?
+
+Speak their name. Find them on your council."`,
+    question: (name) => `"What is it about ${name} that brought the Helmsman to mind?"`,
+    competencies: [
+      { label: "Execution Integrity", type: "has" },
+      { label: "Struggles without clear direction", type: "needs" }
+    ]
+  },
+  {
+    id: "diplomat",
+    name: "The Diplomat",
+    opening: `"The Diplomat.
+
+He held the crew together in ways easy to miss because they looked like nothing. He was deeply loyal — genuinely, not performatively.
+
+But for forty three days he kept his honest counsel in small handwriting that nobody else read. Until the Challenger looked at him across the table. And he stopped. And started again.
+
+I should have said it sooner. I am saying it now.
+
+Who in your council carries this — the deep loyalty and ability to hold people together, and perhaps the tendency to protect harmony at the cost of their own honest voice?
+
+Speak their name. Find them on your council."`,
+    question: (name) => `"What is it about ${name} that brought the Diplomat to mind?"`,
+    competencies: [
+      { label: "Principled Loyalty", type: "has" },
+      { label: "Harmony over honest voice", type: "needs" }
+    ]
+  },
+  {
+    id: "cartographer",
+    name: "The Cartographer",
+    opening: `"The Cartographer.
+
+She knew more about where the Viraan had been than anyone alive. Information was her currency and she spent it deliberately.
+
+But in the aftermath of the storm something shifted. She answered a question outside her domain — with warmth she didn't usually allow herself. And said six words that surprised everyone including herself — Perhaps that is not always necessary.
+
+Who in your council carries this — the mastery of information and the instinct to control its flow, and perhaps the capacity to open that control when the moment calls for it?
+
+Speak their name. Find them on your council."`,
+    question: (name) => `"What is it about ${name} that brought the Cartographer to mind?"`,
+    competencies: [
+      { label: "Information Stewardship", type: "has" },
+      { label: "Controls flow to maintain relevance", type: "needs" }
+    ]
+  },
+  {
+    id: "wayfinder",
+    name: "The Wayfinder",
+    opening: `"The Wayfinder.
+
+She understood the expedition's systems better than anyone. In the storm she stopped two crew members from doing something correct but out of sequence. Three people exchanged a look.
+
+But in the aftermath she added something to the protocols she hadn't planned — a protocol for when the protocol should be questioned. It surprised her that she wrote it. She left it in.
+
+Who in your council carries this — the discipline of protecting how things should work, and perhaps the growing awareness of when the system must flex?
+
+Speak their name. Find them on your council."`,
+    question: (name) => `"What is it about ${name} that brought the Wayfinder to mind?"`,
+    competencies: [
+      { label: "Chain Intelligence", type: "has" },
+      { label: "Process over spirit", type: "needs" }
+    ]
+  },
+  {
+    id: "navigator",
+    name: "The Navigator",
+    opening: `"And now.
+
+The Navigator.
+
+He built this expedition from a half drawn map and a conviction that most people mistook for arrogance. Without him — none of you would be here.
+
+He reads stars that nobody else can read. He sees what is coming before the horizon reveals it.
+
+But he sometimes takes the wheel when it isn't his to take. And sometimes the course changes before the council knows it has.
+
+In the end he called the council. He said four words he had not said before — I want to hear everyone. And the Viraan moved differently after that.
+
+Who in your council carries this — the vision that the entire expedition depends on, and perhaps the tendency to trust their own read of the stars more than the crew they assembled to sail with them?
+
+Speak their name. Find them on your council."`,
+    question: (name) => `"What is it about ${name} that brought the Navigator to mind?"`,
+    extraQuestion: (name) => `"One last question about ${name}.
+
+If they could change one thing about how they lead — one thing that would make the greatest difference to everyone sailing with them — what would it be?"`,
+    competencies: [
+      { label: "Strategic Foresight", type: "has" },
+      { label: "Trusts own stars over the crew", type: "needs" }
+    ]
+  }
+];
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+
+let currentCharIndex = 0;
+let currentStep = "select"; // select | respond | competency | extra
+let selectedLeader = null;
+let responses = [];
+
+// Speech recognition state
+let recognition = null;
+let isRecording = false;
+let closingRecognition = null;
+let closingRecording = false;
+window._tempObs = null;
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function goToNameEntry() {
+  showScreen('name-entry');
+  renderNameSelectTiles();
+}
+
+function renderNameSelectTiles() {
+  const container = document.getElementById('nameSelectTiles');
+  container.innerHTML = '';
+  LEADERS.forEach(name => {
+    const tile = document.createElement('button');
+    tile.className = 'name-select-tile';
+    tile.textContent = name;
+    tile.onclick = () => {
+      participantName = name;
+      document.querySelectorAll('.name-select-tile').forEach(t => t.classList.remove('selected'));
+      tile.classList.add('selected');
+      const btn = document.getElementById('proceedBtn');
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    };
+    container.appendChild(tile);
+  });
+}
+
+function proceedToStory() {
+  if (!participantName) return;
+  showScreen('story');
+}
+
+function goToStory() { showScreen('story'); }
+
+function goToConversation() {
+  showScreen('conversation');
+  initConversation();
+}
+
+function goToThankYou() {
+  showScreen('thankyou');
+  saveAllResponses();
+}
+
+// ══════════════════════════════════════════
+// CONVERSATION INIT
+// ══════════════════════════════════════════
+
+function initConversation() {
+  currentCharIndex = 0;
+  responses = [];
+  loadCharacter();
+}
+
+function resetAllMics(){
+ if(recognition){try{recognition.stop()}catch(e){} recognition=null;}
+ if(closingRecognition){try{closingRecognition.stop()}catch(e){} closingRecognition=null;}
+ isRecording=false; closingRecording=false;
+ const mb=document.getElementById('micBtn'); if(mb){mb.classList.remove('recording'); mb.textContent='🎙';}
+ const cb=document.getElementById('closingMicBtn'); if(cb){cb.classList.remove('recording'); cb.textContent='🎙';}
+}
+
+function loadCharacter() {
+  const char = CHARACTERS[currentCharIndex];
+  currentStep = "select";
+  selectedLeader = null;
+
+  // Progress
+  const pct = (currentCharIndex / CHARACTERS.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = currentCharIndex + ' / ' + CHARACTERS.length;
+  document.getElementById('characterBadge').textContent = char.name;
+
+  // Speech — display and speak
+  stopSpeaking();
+  resetAllMics();
+  document.getElementById('speechText').innerHTML = formatSpeech(char.opening);
+  setTimeout(() => viraanSpeak(char.opening), 400);
+
+  // Tiles
+  document.getElementById('tilesSection').style.display = 'block';
+  renderTiles();
+
+  // Hide response & competency
+  document.getElementById('responseSection').style.display = 'none';
+  document.getElementById('competencySection').style.display = 'none';
+
+  // Confirm button
+  const btn = document.getElementById('confirmBtn');
+  btn.disabled = true;
+  btn.textContent = 'Confirm & Continue';
+
+  // Scroll to top
+  document.getElementById('convScroll').scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderTiles() {
+  const container = document.getElementById('nameTiles');
+  container.innerHTML = '';
+  LEADERS.forEach(name => {
+    const tile = document.createElement('button');
+    tile.className = 'name-tile';
+    tile.textContent = name;
+    tile.onclick = () => selectLeader(name, tile);
+    container.appendChild(tile);
+  });
+}
+
+function selectLeader(name, tile) {
+  selectedLeader = name;
+  document.querySelectorAll('.name-tile').forEach(t => t.classList.remove('selected'));
+  tile.classList.add('selected');
+
+  // Move to respond step
+  currentStep = "respond";
+  const char = CHARACTERS[currentCharIndex];
+  const questionText = char.question(name);
+  document.getElementById('speechText').innerHTML = formatSpeech(questionText);
+  stopSpeaking();
+  setTimeout(() => viraanSpeak(questionText), 300);
+  document.getElementById('tilesSection').style.display = 'none';
+  document.getElementById('responseSection').style.display = 'block';
+  document.getElementById('transcriptBox').value = '';
+
+  document.getElementById('confirmBtn').disabled = false;
+  document.getElementById('confirmBtn').textContent = 'Confirm & Continue';
+
+  document.getElementById('convScroll').scrollTo({ top: document.getElementById('convScroll').scrollHeight, behavior: 'smooth' });
+}
+
+function handleConfirm() {
+  const char = CHARACTERS[currentCharIndex];
+
+  if (currentStep === "respond") {
+    const obs = document.getElementById('transcriptBox').value.trim();
+    if (!obs) { alert("Please share your observation before continuing."); return; }
+
+    window._tempObs = obs;
+    // Show competencies
+    currentStep = "competency";
+    document.getElementById('responseSection').style.display = 'none';
+    document.getElementById('competencySection').style.display = 'block';
+    renderCompetencies(char.competencies);
+
+    const compText = "What the Viraan sees in this pairing — confirm or adjust.";
+    document.getElementById('speechText').innerHTML = formatSpeech('"' + compText + '"');
+    stopSpeaking();
+    setTimeout(() => viraanSpeak(compText), 300);
+    document.getElementById('confirmBtn').textContent = char.extraQuestion ? 'Continue' : 'I will remember this →';
+
+    document.getElementById('convScroll').scrollTo({ top: document.getElementById('convScroll').scrollHeight, behavior: 'smooth' });
+    return;
+  }
+
+  if (currentStep === "competency") {
+    // Save response
+    const obs = document.getElementById('transcriptBox').value.trim();
+    const checkedComps = getCheckedCompetencies();
+
+    if (char.extraQuestion) {
+      // Navigator extra question
+      currentStep = "extra";
+      document.getElementById('competencySection').style.display = 'none';
+      document.getElementById('responseSection').style.display = 'block';
+      document.getElementById('transcriptBox').value = '';
+      const extraText = char.extraQuestion(selectedLeader);
+      document.getElementById('speechText').innerHTML = formatSpeech(extraText);
+      stopSpeaking();
+      setTimeout(() => viraanSpeak(extraText), 300);
+      document.getElementById('confirmBtn').textContent = 'I will carry this carefully →';
+      document.getElementById('convScroll').scrollTo({ top: document.getElementById('convScroll').scrollHeight, behavior: 'smooth' });
+      return;
+    }
+
+    saveResponse(char, obs, checkedComps, null);
+    nextCharacter();
+    return;
+  }
+
+  if (currentStep === "extra") {
+    const obs = document.getElementById('transcriptBox').value.trim();
+    const extraObs = document.getElementById('transcriptBox').value.trim();
+    const checkedComps = getCheckedCompetencies();
+
+    // Re-fetch observation from earlier (stored temporarily)
+    saveResponse(char, window._tempObs || '', checkedComps, extraObs);
+    nextCharacter();
+    return;
+  }
+}
+
+function renderCompetencies(comps) {
+  const container = document.getElementById('competencyItems');
+  container.innerHTML = '';
+  comps.forEach((comp, i) => {
+    const item = document.createElement('div');
+    item.className = 'competency-item checked';
+    item.dataset.index = i;
+    item.onclick = () => item.classList.toggle('checked');
+    item.innerHTML = `
+      <div class="competency-check">✓</div>
+      <div class="competency-label">${comp.label}</div>
+      <div class="competency-type ${comp.type === 'has' ? 'has-tag' : 'needs-tag'}">
+        ${comp.type === 'has' ? 'Present' : 'Developing'}
+      </div>
+    `;
+    container.appendChild(item);
+  });
+}
+
+function getCheckedCompetencies() {
+  const items = document.querySelectorAll('.competency-item');
+  const result = [];
+  items.forEach((item, i) => {
+    if (item.classList.contains('checked')) {
+      result.push(CHARACTERS[currentCharIndex].competencies[i]);
+    }
+  });
+  return result;
+}
+
+function saveResponse(char, observation, competencies, extraAnswer) {
+  responses.push({
+    character: char.name,
+    characterId: char.id,
+    leaderChosen: selectedLeader,
+    observation,
+    competencies,
+    extraAnswer
+  });
+  window._tempObs = null;
+}
+
+function nextCharacter() {
+  currentCharIndex++;
+  if (currentCharIndex >= CHARACTERS.length) {
+    goToClosingQuestion();
+  } else {
+    loadCharacter();
+  }
+}
+
+// ══════════════════════════════════════════
+// TEXT TO SPEECH — VIRAAN SPEAKS
+// ══════════════════════════════════════════
+
+let ttsActive = false;
+let ttsUtterance = null;
+
+function viraanSpeak(text) {
+  if (!('speechSynthesis' in window)) return;
+
+  // Cancel any ongoing speech
+  window.speechSynthesis.cancel();
+  ttsActive = false;
+
+  // Strip quotes and clean text for TTS
+  const clean = text
+    .replace(/["""]/g, '')
+    .replace(/\n+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  ttsUtterance = new SpeechSynthesisUtterance(clean);
+  ttsUtterance.rate = 0.82;
+  ttsUtterance.pitch = 0.75;
+  ttsUtterance.volume = 1;
+
+  // Pick best available voice — prefer deep/male English
+  const voices = window.speechSynthesis.getVoices();
+  const preferred = voices.find(v =>
+    v.lang.startsWith('en') && (
+      v.name.toLowerCase().includes('male') ||
+      v.name.toLowerCase().includes('daniel') ||
+      v.name.toLowerCase().includes('alex') ||
+      v.name.toLowerCase().includes('david') ||
+      v.name.toLowerCase().includes('james') ||
+      v.name.toLowerCase().includes('arthur')
+    )
+  ) || voices.find(v => v.lang.startsWith('en')) || voices[0];
+
+  if (preferred) ttsUtterance.voice = preferred;
+
+  ttsUtterance.onstart = () => { ttsActive = true; };
+  ttsUtterance.onend = () => { ttsActive = false; };
+  ttsUtterance.onerror = () => { ttsActive = false; };
+
+  window.speechSynthesis.speak(ttsUtterance);
+}
+
+function stopSpeaking() {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    ttsActive = false;
+  }
+}
+
+// Voices load async — wait for them
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => {
+    window.speechSynthesis.getVoices(); // prime the list
+  };
+}
+
+// ══════════════════════════════════════════
+// MIC / SPEECH RECOGNITION
+// ══════════════════════════════════════════
+
+// recognition vars defined in TTS/STT section below
+
+function startRecognition(targetId, btnId, onStopCallback) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    alert("Speech recognition is not available in this browser. Please use Chrome or Edge and type your response.");
+    return null;
+  }
+
+  const rec = new SpeechRecognition();
+  rec.continuous = true;
+  rec.interimResults = true;
+  rec.lang = 'en-IN';
+  rec.maxAlternatives = 1;
+
+  let finalTranscript = document.getElementById(targetId).value || '';
+
+  rec.onstart = () => {
+    const btn = document.getElementById(btnId);
+    if (btn) { btn.classList.add('recording'); btn.textContent = '⏹'; }
+  };
+
+  rec.onresult = (e) => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) {
+        finalTranscript += e.results[i][0].transcript + ' ';
+      } else {
+        interim = e.results[i][0].transcript;
+      }
+    }
+    const el = document.getElementById(targetId);
+    if (el) el.value = finalTranscript + interim;
+  };
+
+  rec.onerror = (e) => {
+    console.warn('Speech error:', e.error);
+    const btn = document.getElementById(btnId);
+    if (btn) { btn.classList.remove('recording'); btn.textContent = '🎙'; }
+    if (e.error === 'not-allowed') {
+      alert("Microphone access was denied. Please allow microphone access in your browser settings and try again.");
+    }
+  };
+
+  rec.onend = () => {
+    const btn = document.getElementById(btnId);
+    if (btn) { btn.classList.remove('recording'); btn.textContent = '🎙'; }
+    if (onStopCallback) onStopCallback();
+  };
+
+  // Stop TTS before recording
+  stopSpeaking();
+
+  rec.start();
+  return rec;
+}
+
+function toggleMic() {
+  if (isRecording && recognition) {
+    recognition.stop();
+    recognition = null;
+    isRecording = false;
+    document.getElementById('micBtn').classList.remove('recording');
+    document.getElementById('micBtn').textContent = '🎙';
+    return;
+  }
+
+  recognition = startRecognition('transcriptBox', 'micBtn', () => {
+    isRecording = false;
+  });
+
+  if (recognition) isRecording = true;
+}
+
+function toggleClosingMic() {
+  if (closingRecording && closingRecognition) {
+    closingRecognition.stop();
+    closingRecognition = null;
+    closingRecording = false;
+    document.getElementById('closingMicBtn').classList.remove('recording');
+    document.getElementById('closingMicBtn').textContent = '🎙';
+    return;
+  }
+
+  closingRecognition = startRecognition('closingTextarea', 'closingMicBtn', () => {
+    closingRecording = false;
+  });
+
+  if (closingRecognition) closingRecording = true;
+}
+
+// ══════════════════════════════════════════
+// CLOSING QUESTION
+// ══════════════════════════════════════════
+
+function goToClosingQuestion() {
+  resetAllMics();
+  showScreen('closing-screen');
+  const closingText = 'You have looked at your crew with honest eyes. If you could send one message to your entire council — something they need to hear as they sail into the uncharted water ahead — what would it be? Speak it. I will make sure it reaches them.';
+  setTimeout(() => viraanSpeak(closingText), 600);
+}
+
+async function submitAll() {
+  const closingMsg = document.getElementById('closingTextarea').value.trim();
+  if (!closingMsg) {
+    alert("Please share your message to the council before submitting.");
+    return;
+  }
+
+  stopSpeaking();
+
+  if (recognition) { recognition.stop(); recognition = null; }
+  if (closingRecognition) { closingRecognition.stop(); closingRecognition = null; }
+
+  // Show results immediately — no lag
+  showResults(closingMsg);
+
+  // Save to Google Sheet in background — does not block UI
+  saveAllResponses().catch(err => console.error('Background save failed:', err));
+}
+
+// ══════════════════════════════════════════
+// RESULTS
+// ══════════════════════════════════════════
+
+function showResults(closingMsg) {
+  showScreen('results');
+
+  const container = document.getElementById('characterCards');
+  container.innerHTML = '';
+
+  responses.forEach(r => {
+    const card = document.createElement('div');
+    card.className = 'character-card fade-in';
+    card.innerHTML = `
+      <div class="card-character">${r.character}</div>
+      <div class="card-leader">${r.leaderChosen}</div>
+      <div class="card-competencies">
+        ${r.competencies.map(c => `
+          <div class="card-comp">
+            <div class="card-comp-dot ${c.type === 'has' ? 'dot-has' : 'dot-needs'}"></div>
+            <div class="card-comp-text">${c.label}</div>
+            <div class="card-comp-tag">${c.type === 'has' ? 'Present' : 'Developing'}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  if (closingMsg) {
+    document.getElementById('closingMessageDisplay').style.display = 'block';
+    document.getElementById('closingMessageText').textContent = '"' + closingMsg + '"';
+  }
+}
+
+// ══════════════════════════════════════════
+// SAVE / EXPORT
+// ══════════════════════════════════════════
+
+async function saveAllResponses() {
+  const closingMsg = document.getElementById('closingTextarea').value.trim();
+  const submittedAt = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+
+  // Build flat rows — one row per character response
+  const rows = responses.map(r => ({
+    submittedAt,
+    participantName,
+    character: r.character,
+    leaderChosen: r.leaderChosen,
+    observation: r.observation || '',
+    extraAnswer: r.extraAnswer || '',
+    competenciesPresent: r.competencies
+      .filter(c => c.type === 'has')
+      .map(c => c.label).join(', '),
+    competenciesDeveloping: r.competencies
+      .filter(c => c.type === 'needs')
+      .map(c => c.label).join(', '),
+    closingMessage: closingMsg
+  }));
+
+  // Also save locally as backup — downloads a JSON file on the device
+  try {
+    const backup = JSON.stringify({ submittedAt, participantName, rows }, null, 2);
+    const blob = new Blob([backup], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'viraan-' + participantName + '-' + Date.now() + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    console.log('Local backup saved');
+  } catch (err) {
+    console.warn('Local backup failed:', err);
+  }
+
+  // Send to Google Sheet — no Content-Type header (required for no-cors)
+  try {
+    const payload = JSON.stringify({ rows });
+    const formData = new FormData();
+    formData.append('data', payload);
+
+    await fetch('https://script.google.com/macros/s/AKfycbwMUzTpBo2cY9udMDI8ohW08IRpKdxsrKHsc6PAJewP00GC899ms3idtWeLukEo-kgGBQ/exec', {
+      method: 'POST',
+      mode: 'no-cors',
+      body: formData
+    });
+    console.log('Sent to Google Sheet — ' + rows.length + ' rows');
+  } catch (err) {
+    console.error('Google Sheet submission failed:', err);
+  }
+}
+
+// ══════════════════════════════════════════
+// UTILITIES
+// ══════════════════════════════════════════
+
+function formatSpeech(text) {
+  return text
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
+    .map(line => '<p class="speech-line">' + line + '</p>')
+    .join('');
+}
+</script>
+</body>
+</html>
