@@ -1711,7 +1711,7 @@ function saveResponse(char, observation, competencies, extraAnswer) {
   responses.push({
     character: char.name,
     characterId: char.id,
-    leaderChosen: selectedLeader,
+    leaderChosen: selectedLeader || currentLeader || document.getElementById('leaderInput')?.value?.trim() || "",
     observation,
     competencies,
     extraAnswer
