@@ -1621,19 +1621,22 @@ function handleConfirm() {
     if (!obs) { alert("Please share your observation before continuing."); return; }
 
     window._tempObs = obs;
-    // Show competencies
-    currentStep = "competency";
-    document.getElementById('responseSection').style.display = 'none';
-    document.getElementById('competencySection').style.display = 'block';
-    renderCompetencies(char.competencies);
 
-    const compText = "What the Viraan sees in this pairing — confirm or adjust.";
-    document.getElementById('speechText').innerHTML = formatSpeech('"' + compText + '"');
-    stopSpeaking();
-    setTimeout(() => viraanSpeak(compText), 300);
-    document.getElementById('confirmBtn').textContent = char.extraQuestion ? 'Continue' : 'I will remember this →';
+    responses.push({
+     character: char.name,
+     leader: selectedLeader,
+     observation: obs,
+     competencies: char.competencies
+    });
 
-    document.getElementById('convScroll').scrollTo({ top: document.getElementById('convScroll').scrollHeight, behavior: 'smooth' });
+    currentCharIndex++;
+
+    if (currentCharIndex >= CHARACTERS.length) {
+       showScreen('closing-screen');
+    } else {
+      loadCharacter();
+    }
+
     return;
   }
 
