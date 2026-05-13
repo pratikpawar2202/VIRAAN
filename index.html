@@ -675,6 +675,22 @@
     font-weight: 300;
   }
 
+  .card-observation-title {
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+}
+
+.card-observation {
+  margin-top: 0.5rem;
+  color: var(--foam);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  font-style: italic;
+  opacity: 0.9;
+}
   .card-competencies {
     display: flex; flex-direction: column; gap: 0.4rem;
   }
@@ -1945,18 +1961,22 @@ function showResults(closingMsg) {
     const card = document.createElement('div');
     card.className = 'character-card fade-in';
     card.innerHTML = `
-      <div class="card-character">${r.character}</div>
-      <div class="card-leader">${r.leaderChosen}</div>
-      <div class="card-competencies">
-        ${r.competencies.map(c => `
-          <div class="card-comp">
-            <div class="card-comp-dot ${c.type === 'has' ? 'dot-has' : 'dot-needs'}"></div>
-            <div class="card-comp-text">${c.label}</div>
-            <div class="card-comp-tag">${c.type === 'has' ? 'Present' : 'Developing'}</div>
-          </div>
-        `).join('')}
+  <div class="card-character">${r.character}</div>
+  <div class="card-leader">${r.leaderChosen}</div>
+
+  <div class="card-competencies">
+    ${r.competencies.map(c => `
+      <div class="card-comp">
+        <div class="card-comp-dot ${c.type === 'has' ? 'dot-has' : 'dot-needs'}"></div>
+        <div class="card-comp-text">${c.label}</div>
+        <div class="card-comp-tag">${c.type === 'has' ? 'Present' : 'Developing'}</div>
       </div>
-    `;
+    `).join('')}
+  </div>
+
+  <div class="card-observation-title">What you noticed</div>
+  <div class="card-observation">${r.observation || 'No observation shared.'}</div>
+`;
     container.appendChild(card);
   });
 
