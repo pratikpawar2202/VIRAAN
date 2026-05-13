@@ -1624,20 +1624,35 @@ function handleConfirm() {
 
     responses.push({
      character: char.name,
-     leader: selectedLeader,
+     leaderChosen: selectedLeader,
      observation: obs,
      competencies: char.competencies
     });
 
-    currentCharIndex++;
+    if (char.extraQuestion && currentStep !== "extra") {
+  currentStep = "extra";
 
-    if (currentCharIndex >= CHARACTERS.length) {
-       showScreen('closing-screen');
-    } else {
-      loadCharacter();
-    }
+  const q = char.extraQuestion(selectedLeader);
 
-    return;
+  document.getElementById('speechText').innerHTML = formatSpeech(q);
+
+  stopSpeaking();
+  setTimeout(() => viraanSpeak(q), 300);
+
+  document.getElementById('transcriptBox').value = '';
+
+  return;
+}
+
+currentCharIndex++;
+
+if (currentCharIndex >= CHARACTERS.length) {
+  showScreen('closing-screen');
+} else {
+  loadCharacter();
+}
+
+return;
   }
 
   if (currentStep === "competency") {
