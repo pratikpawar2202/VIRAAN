@@ -2044,17 +2044,16 @@ async function saveAllResponses() {
       body: JSON.stringify({
         rows: rows
       })
-
     }
   );
 
   const result = await response.text();
-  alert('Save reached here');  
+  alert('Save reached here');
   console.log('Google Sheet response:', result);
 
-  } catch (err) {
+} catch (err) {
   console.error('Google Sheet submission failed:', err);
-  }
+}
   
 // ══════════════════════════════════════════
 // UTILITIES
