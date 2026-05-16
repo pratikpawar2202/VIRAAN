@@ -2036,8 +2036,6 @@ async function saveAllResponses() {
   const formData = new FormData();
   formData.append('data', JSON.stringify({ rows }));
 
-  alert('Starting save');
-
   await fetch(
     'https://script.google.com/macros/s/AKfycbwMUzTpBo2cY9udMDI8ohW08IRpKdxsrKHsc6PAJewP00GC899ms3idtWeLukEo-kgGBQ/exec',
     {
@@ -2047,10 +2045,9 @@ async function saveAllResponses() {
     }
   );
 
-  alert('Save request completed');
+  console.log('Sent to Google Sheet — ' + rows.length + ' rows');
 
 } catch (err) {
-  alert('Save failed');
   console.error('Google Sheet submission failed:', err);
 }
 
