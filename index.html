@@ -2032,18 +2032,26 @@ async function saveAllResponses() {
   }
   
   // Send to Google Sheet
-  try {
-    const formData = new FormData();
-    formData.append('data', JSON.stringify({ rows }));
-    await fetch('https://script.google.com/macros/s/AKfycbwMUzTpBo2cY9udMDI8ohW08IRpKdxsrKHsc6PAJewP00GC899ms3idtWeLukEo-kgGBQ/exec', {
+ try {
+  const formData = new FormData();
+  formData.append('data', JSON.stringify({ rows }));
+
+  alert('Starting save');
+
+  await fetch(
+    'https://script.google.com/macros/s/AKfycbwMUzTpBo2cY9udMDI8ohW08IRpKdxsrKHsc6PAJewP00GC899ms3idtWeLukEo-kgGBQ/exec',
+    {
       method: 'POST',
       mode: 'no-cors',
       body: formData
-    });
-    console.log('Sent to Google Sheet — ' + rows.length + ' rows');
-  } catch (err) {
-    console.error('Google Sheet submission failed:', err);
-  }
+    }
+  );
+
+  alert('Save request completed');
+
+} catch (err) {
+  alert('Save failed');
+  console.error('Google Sheet submission failed:', err);
 }
 
 // ══════════════════════════════════════════
