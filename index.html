@@ -2030,23 +2030,32 @@ async function saveAllResponses() {
 
   // Send to Google Sheet
   try {
-    const payload = JSON.stringify({ rows });
+  const payload = JSON.stringify({ rows });
 
-    await fetch('https://script.google.com/macros/s/AKfycbwMUzTpBo2cY9udMDI8ohW08IRpKdxsrKHsc6PAJewP00GC899ms3idtWeLukEo-kgGBQ/exec', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/x-www-form-urlencoded'
-  },
-  body: new URLSearchParams({
-    data: payload
-  })
-});
-    console.log('Sent to Google Sheet — ' + rows.length + ' rows');
+  const response = await fetch(
+    'https://script.google.com/macros/s/AKfycbwMUzTpBo2cY9udMDI8oHW08IRpKdxsrKHsc6PAJewP00GC899ms3idtWLeUkEo-kgGBQ/exec',
+    {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+
+      body: JSON.stringify({
+        rows: rows
+      })
+
+    }
+  );
+
+  const result = await response.text();
+  alert('Save reached here');  
+  console.log('Google Sheet response:', result);
+
   } catch (err) {
-    console.error('Google Sheet submission failed:', err);
+  console.error('Google Sheet submission failed:', err);
   }
-}
-
+  
 // ══════════════════════════════════════════
 // UTILITIES
 // ══════════════════════════════════════════
