@@ -2011,23 +2011,26 @@ async function saveAllResponses() {
     closingMessage: closingMsg
   }));
 
-  // Also save locally as backup — downloads a JSON file on the device
+  // Also save locally as backup — skip on iOS Safari as it blocks downloads
   try {
-    const backup = JSON.stringify({ submittedAt, participantName, rows }, null, 2);
-    const blob = new Blob([backup], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'viraan-' + participantName + '-' + Date.now() + '.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    console.log('Local backup saved');
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    if (!isIOS) {
+      const backup = JSON.stringify({ submittedAt, participantName, rows }, null, 2);
+      const blob = new Blob([backup], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'viraan-' + participantName + '-' + Date.now() + '.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      console.log('Local backup saved');
+    }
   } catch (err) {
     console.warn('Local backup failed:', err);
   }
-
+  
   // Send to Google Sheet
   try {
     const formData = new FormData();
