@@ -2028,17 +2028,19 @@ async function saveAllResponses() {
     console.warn('Local backup failed:', err);
   }
 
-  // Send to Google Sheet — no Content-Type header (required for no-cors)
+  // Send to Google Sheet
   try {
     const payload = JSON.stringify({ rows });
-    const formData = new FormData();
-    formData.append('data', payload);
 
     await fetch('https://script.google.com/macros/s/AKfycbwMUzTpBo2cY9udMDI8ohW08IRpKdxsrKHsc6PAJewP00GC899ms3idtWeLukEo-kgGBQ/exec', {
-      method: 'POST',
-      mode: 'no-cors',
-      body: formData
-    });
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  },
+  body: new URLSearchParams({
+    data: payload
+  })
+});
     console.log('Sent to Google Sheet — ' + rows.length + ' rows');
   } catch (err) {
     console.error('Google Sheet submission failed:', err);
